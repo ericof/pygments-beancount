@@ -72,6 +72,8 @@ docs = [
 ]
 release = [
     "towncrier>=24.8.0",
+    "zest-releaser[recommended]>=9.9.1",
+    "zestreleaser-towncrier>=2.0.1",
 ]
 
 [tool.hatch.version]
@@ -89,6 +91,29 @@ include = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pygments_beancount"]
+
+# make release runs fullrelease. The version file comes from [tool.hatch.version];
+# nothing is uploaded from here: pushing the tag starts .github/workflows/release.yml,
+# which publishes to PyPI through trusted publishing.
+[tool.zest-releaser]
+history-file = "CHANGELOG.md"
+history-format = "md"
+tag-format = "v{version}"
+release = false
+
+# zest.releaser runs check-manifest before a release. These files stay out of
+# the sdist on purpose (see the include list above); anything else in git that
+# the sdist misses is still reported.
+[tool.check-manifest]
+ignore = [
+    ".python-version",
+    ".vale.ini",
+    "CLAUDE.md",
+    "Makefile",
+    "uv.lock",
+    "docs/**",
+    "news/**",
+]
 
 [tool.towncrier]
 package = "pygments_beancount"

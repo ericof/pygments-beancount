@@ -106,3 +106,19 @@ docs-clean: ## Remove the built documentation
 .PHONY: changelog
 changelog: ## Preview the next changelog section from news/
 	$(UV) run --group release towncrier build --draft --version "next"
+
+############################################
+# Release
+############################################
+# zest.releaser asks for the version, writes the changelog with towncrier,
+# commits, tags v<version>, bumps to the next .dev0 and offers to push.
+# Pushing the tag starts the workflow that publishes to PyPI.
+.PHONY: release
+release: ## Make a release from a clean, up-to-date main
+	@test "$$(git branch --show-current)" = main || { echo "Releases are made from main." >&2; exit 1; }
+	@test -z "$$(git status --porcelain)" || { echo "The working tree is not clean." >&2; exit 1; }
+	@git fetch --quiet origin main
+	@test "$$(git rev-parse HEAD)" = "$$(git rev-parse origin/main)" || { echo "main is not in sync with origin/main." >&2; exit 1; }
+	@find news -maxdepth 1 -type f ! -name '.*' | grep -q . || { echo "news/ has no fragments: nothing to release." >&2; exit 1; }
+	$(MAKE) check
+	$(UV) run --group release fullrelease

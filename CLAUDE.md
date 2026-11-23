@@ -39,6 +39,7 @@ make docs                 # Sphinx + MyST, warnings are errors
 make docs-vale            # Vale: errors fail, warnings are advisory
 make build                # sdist and wheel into dist/
 make changelog            # preview the next changelog section
+make release              # Érico only: zest.releaser fullrelease from a clean main
 ```
 
 ## Tests
