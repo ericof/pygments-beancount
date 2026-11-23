@@ -100,3 +100,18 @@ CI builds it on every push and publishes it to GitHub Pages from `main`.
 ```shell
 make docs-livehtml   # rebuild on every change, at http://127.0.0.1:8050
 ```
+
+## Make a release
+
+Releases are made with [zest.releaser](https://zestreleaser.readthedocs.io/) and its towncrier plugin, from a clean `main` that is in sync with GitHub:
+
+```shell
+make release
+```
+
+The target refuses to start on another branch, with uncommitted changes, or when `news/` has no fragments, and it runs `make check` first.
+zest.releaser then asks for the version, writes the changelog section from the fragments, commits, tags `v<version>`, moves `__version__` to the next `.dev0` version, commits again, and offers to push.
+Each step waits for confirmation.
+
+Pushing the tag starts the release workflow, which builds the package, publishes it to PyPI through trusted publishing, and creates the GitHub release.
+Nothing is uploaded from your machine.
