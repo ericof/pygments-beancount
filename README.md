@@ -2,7 +2,7 @@
 
 A [Pygments](https://pygments.org/) lexer for [Beancount](https://beancount.github.io/) ledgers.
 
-Install it, and ```` ```beancount ```` code blocks highlight in Sphinx and MyST documentation, in `pygmentize`, and anywhere else Pygments is used.
+Install it, and ```` ```beancount ```` code blocks highlight in Sphinx and MyST, MkDocs and Pelican, `pygmentize`, and every other tool that highlights code with Pygments.
 There is nothing to configure: Pygments finds the lexer through its plugin entry point.
 
 [![CI](https://github.com/ericof/pygments-beancount/actions/workflows/ci.yml/badge.svg)](https://github.com/ericof/pygments-beancount/actions/workflows/ci.yml)
@@ -56,6 +56,14 @@ Directives work too, with all their options:
 :lines: 1-20
 ```
 ````
+
+### In MkDocs and other Python-Markdown sites
+
+Python-Markdown highlights through Pygments with the `codehilite` or `pymdownx.highlight` extension.
+Pelican enables `codehilite` by default, and Material for MkDocs highlights through `pymdownx.highlight`, so in both ```` ```beancount ```` blocks highlight once the package is installed.
+The default `mkdocs` theme uses highlight.js instead; the [Markdown guide](https://ericof.github.io/pygments-beancount/how-to/use-in-markdown.html) shows how to switch it to Pygments.
+
+Hugo, Zola and browser-side highlighters do not use Pygments, so the package has no effect there.
 
 ### On the command line
 

@@ -2,7 +2,7 @@
 myst:
   html_meta:
     "description": "Practical guides for highlighting Beancount ledgers with pygments-beancount."
-    "keywords": "Beancount, Sphinx, MyST, pygmentize, Pygments, development"
+    "keywords": "Beancount, Sphinx, MyST, MkDocs, Pelican, pygmentize, Pygments, development"
 ---
 
 # How-to guides
@@ -11,6 +11,9 @@ Practical recipes for people who already know what they want.
 
 {doc}`use-in-sphinx`
 :   Show ledgers in Sphinx and MyST: fenced blocks, directives with options, included files, inline code, line numbers.
+
+{doc}`use-in-markdown`
+:   Show ledgers in MkDocs, Material for MkDocs, Pelican and other Python-Markdown sites.
 
 {doc}`use-pygmentize`
 :   Highlight ledgers on the command line and from Python.
@@ -25,6 +28,7 @@ Practical recipes for people who already know what they want.
 :hidden:
 
 use-in-sphinx
+use-in-markdown
 use-pygmentize
 register-manually
 contribute
