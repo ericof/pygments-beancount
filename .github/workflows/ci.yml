@@ -1,0 +1,151 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the run it supersedes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.4.0
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: make install
+
+      - name: ruff and mypy
+        run: make lint
+
+  test:
+    name: "Test: Python ${{ matrix.python-version }} on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        include:
+          - os: macos-latest
+            python-version: "3.14"
+          - os: windows-latest
+            python-version: "3.14"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.4.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Run tests with coverage
+        run: uv run pytest --cov=pygments_beancount --cov-report=term-missing --cov-fail-under=100
+
+  pygments-floor:
+    name: "Test: oldest supported Pygments"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.4.0
+        with:
+          python-version: "3.11"
+          enable-cache: true
+
+      - name: Run tests against the oldest supported Pygments
+        run: make test-pygments-floor
+
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.4.0
+        with:
+          enable-cache: true
+
+      - name: Build
+        run: make build
+
+      - name: Check metadata
+        run: uvx twine check --strict dist/*
+
+      # The wheel alone, in an environment without the source tree: Pygments
+      # must find the lexer through the installed entry point.
+      - name: Test the wheel in a clean environment
+        run: |
+          env="$RUNNER_TEMP/wheel-env"
+          uv venv --python 3.14 "$env"
+          uv pip install --python "$env/bin/python" dist/*.whl pytest
+          cd "$RUNNER_TEMP"
+          "$env/bin/python" -m pytest -p no:cacheprovider \
+            "$GITHUB_WORKSPACE/tests/test_plugin.py" "$GITHUB_WORKSPACE/tests/test_tokens.py"
+          "$env/bin/pygmentize" -L lexers | grep -A1 -i beancount
+
+  docs:
+    name: Documentation
+    uses: ./.github/workflows/docs.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+  report:
+    name: Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ always() }}
+    needs:
+      - lint
+      - test
+      - pygments-floor
+      - build
+      - docs
+    steps:
+      - name: Report
+        run: |
+          {
+            echo '# Report'
+            echo '| Job | Status |'
+            echo '| --- | --- |'
+            echo '| Lint | ${{ needs.lint.result == 'success' && '✅' || '❌' }} |'
+            echo '| Test | ${{ needs.test.result == 'success' && '✅' || '❌' }} |'
+            echo '| Pygments floor | ${{ needs.pygments-floor.result == 'success' && '✅' || '❌' }} |'
+            echo '| Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} |'
+            echo '| Docs | ${{ needs.docs.result == 'success' && '✅' || '❌' }} |'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail when a job failed
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        run: exit 1

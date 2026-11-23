@@ -1,0 +1,3 @@
+# The goldens record LF line endings: never convert the examples on checkout.
+tests/examples/** text eol=lf
+tests/roots/** text eol=lf

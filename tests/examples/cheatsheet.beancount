@@ -1,0 +1,18 @@
+; Snippets as they appear in documentation, with placeholders. Not a valid
+; ledger: the lexer must still highlight it without an error.
+
+2026-01-01 open Assets:Investments:Stocks ...
+2026-01-01 open Assets:Investments:Cash   USD
+
+2026-01-02 * "Payee" "Narration" ...
+  Assets:Investments:Stocks   10 VTI {502.12 # 9.95 USD}
+  Assets:Investments:Stocks   -5 VTI {*}
+  ...
+
+2026-01-03 * "Payee" | "Narration, with the legacy pipe"
+  Assets:Investments:Cash   <amount> USD
+  Assets:Investments:Stocks
+
+2026-01-04 * "A string that continues
+  on the next line"
+  Assets:Investments:Cash   1. USD

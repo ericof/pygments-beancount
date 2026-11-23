@@ -1,0 +1,15 @@
+[Bb]eancount
+bean-check
+bean-format
+Diátaxis
+flex
+goldens?
+[Hh]ashbang
+lex(es|ed|ing|ers?)?
+MyST
+mypy
+[Pp]ygments
+pygmentize
+towncrier
+uv
+Vale

@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.coverage
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv
+
+# Pins the development Python for uv; the global gitignore hides it otherwise.
+!.python-version
+
+# Documentation builds, and the Vale styles that `vale sync` downloads
+docs/_build/
+docs/_styles/Microsoft/

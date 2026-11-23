@@ -1,0 +1,13 @@
+; Account names may use any non-ASCII letter, and strings any character.
+option "operating_currency" "BRL"
+option "name_assets" "Ativos"
+option "name_expenses" "Despesas"
+
+2026-01-01 open Ativos:BR:Itaú:Conta-Corrente BRL
+2026-01-01 open Despesas:Alimentação:Café BRL
+2026-01-01 open Ativos:Ásia:Ōsaka JPY
+2026-01-01 open Ativos:DE:Sparkasse:Girokonto EUR
+
+2026-01-02 * "Padaria São João" "Café da manhã ☕" #ferias
+  Despesas:Alimentação:Café   12.50 BRL
+  Ativos:BR:Itaú:Conta-Corrente

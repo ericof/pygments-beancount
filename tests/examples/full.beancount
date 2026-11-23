@@ -1,0 +1,99 @@
+#!/usr/bin/env bean-check
+;; A synthetic ledger that uses every construct the lexer knows.
+;; Nothing here describes a real person, account or balance.
+
+* Options and plugins
+option "title" "Example Ledger"
+option "operating_currency" "USD"
+plugin "beancount.plugins.auto_accounts"
+include "prices.beancount"
+
+** Accounts
+2020-01-01 open Assets:US:Bank:Checking USD
+2020-01-01 open Assets:US:Broker:Stocks VTI,V "FIFO"
+2020-01-01 open Assets:US:Broker:Futures /ESM24
+2020-01-01 open Assets:Cash
+  description: "Pocket money"
+2020-01-01 open Equity:Opening-Balances
+2020-01-01 open Expenses:Food:Groceries USD
+2020-01-01 open Expenses:Travel
+2020-01-01 open Income:Salary USD
+2020-01-01 open Liabilities:CreditCard:0042 USD
+2025-12-31 close Liabilities:CreditCard:0042
+
+** Commodities and prices
+2020-01-01 commodity USD
+  name: "US Dollar"
+  export: "CASH"
+2020-01-01 commodity VTI
+  price: "USD:yahoo/VTI"
+2026-01-02 price VTI 250.10 USD
+2026/01/03 price V 310 USD
+
+** Transactions
+2026-01-05 * "Employer" "Salary for January" #payroll ^payslip-2026-01
+  Assets:US:Bank:Checking  4,250.00 USD
+  Income:Salary           -4,250.00 USD
+
+2026-01-06 ! "Grocery store" "Weekly shopping" ; to be checked
+  receipt: "receipts/2026-01-06.pdf"
+  Expenses:Food:Groceries    (24.30 + 12.70) * 2 USD
+  ! Assets:Cash              -74.00 USD
+
+2026-01-07 txn "Opening balance"
+  Assets:Cash                   100 USD
+  Equity:Opening-Balances
+
+2026-01-08 # "Broker" "Buy shares"
+  Assets:US:Broker:Stocks    10 VTI {250.10 USD, 2026-01-08, "lot-1"}
+  Assets:US:Bank:Checking
+
+2026-01-09 P "Broker" "Buy more shares at a total cost"
+  Assets:US:Broker:Stocks    5 VTI {{1,251.00 USD}}
+  Assets:US:Broker:Stocks    2 V {502.12 # 9.95 USD}
+  * Assets:US:Bank:Checking
+
+2026-01-10 * "Broker" "Sell shares"
+  Assets:US:Broker:Stocks    -3 VTI {} @ 255.00 USD
+  Assets:US:Broker:Stocks    -1 V {} @@ 312.00 USD
+  Assets:US:Bank:Checking    1,077.00 USD
+
+2026-01-11 * "Split a bill"
+  Expenses:Food:Groceries    90.00 / 3 USD
+  Assets:Cash               -30.00 USD
+
+2026-01-12 * "Futures margin"
+  Assets:US:Broker:Futures   1 /ESM24 {5,000.00 USD}
+  Assets:US:Bank:Checking
+
+** Metadata of every kind
+pushtag #trip-2026
+pushmeta location: "Lisbon"
+2026-02-01 * "Hotel" "Two nights"
+  booked: 2026-01-15
+  paid-with: Assets:US:Bank:Checking
+  currency: USD
+  category: #lodging
+  refundable: FALSE
+  confirmed: TRUE
+  voucher: NULL
+  nights: 2
+  rate: 120.00 USD
+  total: 2 * 120.00
+  remarks:
+  Expenses:Travel            240.00 USD
+  Assets:US:Bank:Checking
+popmeta location:
+poptag #trip-2026
+
+** Other directives
+2026-02-28 balance Assets:US:Bank:Checking  3,000.00 ~ 0.01 USD
+2026-02-28 pad Assets:Cash Equity:Opening-Balances
+2026-03-01 note Assets:US:Bank:Checking "Called the bank about a fee" #bank
+2026-03-01 document Assets:US:Bank:Checking "statements/2026-02.pdf" ^statement-2026-02
+2026-03-01 event "location" "Lisbon, Portugal"
+2026-03-01 query "cash" "
+  SELECT account, sum(position)
+  WHERE account ~ 'Assets:Cash'"
+2026-03-01 custom "budget" Expenses:Food:Groceries "monthly" 400.00 USD TRUE 2026-03-31
+2026-03-02 note Assets:Cash "A \"quoted\" word and a backslash \\"

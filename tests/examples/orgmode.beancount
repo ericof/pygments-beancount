@@ -1,0 +1,18 @@
+;; -*- mode: org; mode: beancount; -*-
+* Accounts
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+2026-01-01 open Assets:Checking USD
+2026-01-01 open Expenses:Rent USD
+
+* Transactions
+** January
+# A line that starts with a hash and a space is skipped, like a comment.
+! A line that starts with a flag character is skipped too.
+2026-01-31 * "Landlord" "Rent for January"
+  Expenses:Rent      1,200.00 USD
+  Assets:Checking
+
+*** Reconciled
+2026-01-31 balance Assets:Checking  -1,200.00 USD
